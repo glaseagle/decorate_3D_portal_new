@@ -34,10 +34,9 @@ jobs:
         working-directory: client
 
       - name: Build
-        run: npm run build
+        run: npm run build -- --mode github-pages
         working-directory: client
         env:
-          GITHUB_PAGES: 'true'
           VITE_SPLAT_URL: 'https://github.com/glaseagle/decorate_3D_portal_new/releases/download/assets/rainbow_cars.ply'
 
       - name: Configure Pages
