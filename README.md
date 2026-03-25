@@ -1,15 +1,23 @@
-# Decorate Your Own 3D Portal!
+# Decorate Your Own 3D Portal
 
-Real-time head-tracked 3D perspective viewer inspired by [Johnny Chung Lee's Wii Remote head tracking](https://johnnylee.net/projects/wii/). Move your head and the on-screen scene shifts perspective as if you're looking through a window into a 3D space.
+Turn any screen into a head-tracked window into a layered 3D scene. Move your head and the world shifts with a clean, convincing parallax "depth box" effect.
 
-Designed for use with TouchDesigner, MadMapper, and other creative-coding tools via Syphon (macOS) or Spout (Windows) frame sharing.
+Built for live visuals and creative tools like TouchDesigner and MadMapper using Syphon (macOS) or Spout (Windows) frame sharing.
+
+## Highlights
+
+- Real-time head tracking with MediaPipe Face Landmarker
+- Off-axis projection for correct perspective at any viewing position
+- Multi-layer video planes streamed over WebSocket as MJPEG
+- Syphon/Spout capture for frictionless integration into existing pipelines
+- Calibration, debug overlays, and quick controls baked into the UI
 
 ## How It Works
 
-1. **MediaPipe Face Landmarker** tracks your head position and orientation through your webcam.
-2. An **off-axis (asymmetric frustum) projection** updates in real time based on where your eyes are relative to the screen.
-3. A **Python server** captures frames from Syphon/Spout sources and streams them over WebSocket as MJPEG.
-4. The **Three.js client** maps those video streams onto planes at different depths, creating a convincing parallax "depth box" illusion.
+1. **MediaPipe Face Landmarker** estimates head pose from the webcam.
+2. An **asymmetric frustum** updates each frame based on your eye position.
+3. A **Python server** captures Syphon/Spout frames and streams them over WebSocket.
+4. The **Three.js client** maps streams onto depth layers to create the portal illusion.
 
 ## Tech Stack
 
@@ -23,13 +31,13 @@ Designed for use with TouchDesigner, MadMapper, and other creative-coding tools 
 | Frame Capture | syphon-python (macOS) / SpoutGL (Windows) |
 | Frame Encoding | OpenCV + NumPy |
 
-## Getting Started
+## Quick Start
 
 ### Prerequisites
 
 - **Node.js** 18+
 - **Python** 3.10+
-- **macOS** with Syphon-compatible app (e.g. TouchDesigner), or **Windows** with Spout
+- **macOS** with Syphon-compatible app, or **Windows** with Spout
 
 ### Client
 
@@ -95,7 +103,7 @@ client/
 
 server/
     syphon_server.py        Main FastAPI server
-    source_manager.py       Syphon/Spout source discovery & capture
+    source_manager.py       Syphon/Spout source discovery and capture
     spout_source_manager.py Windows Spout capture
     frame_encoder.py        JPEG encoding pipeline
     config.json             Server configuration
