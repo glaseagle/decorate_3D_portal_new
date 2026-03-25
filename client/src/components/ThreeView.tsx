@@ -55,6 +55,14 @@ const ThreeView = forwardRef<ThreeViewHandle>((_, ref) => {
     getPlaneScreenRect(planeId: string) {
       return managerRef.current?.getPlaneScreenRect(planeId) ?? null;
     },
+
+    async loadSplat(url: string) {
+      return managerRef.current?.loadSplat(url);
+    },
+
+    setSplatTransform(pos: { x: number; y: number; z: number }, rot: { x: number; y: number; z: number }, scale: number) {
+      managerRef.current?.setSplatTransform(pos, rot, scale);
+    },
   }));
 
   useEffect(() => {

@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import * as GaussianSplats3D from '@mkkellogg/gaussian-splats-3d';
 import { OffAxisCamera } from './offAxisCamera';
 import { ModelManager } from './modelManager';
 import type { SmoothedHeadPose, DepthPlane, PerspectiveSettings, ModelEntry } from '../types';
@@ -41,6 +42,7 @@ export class ThreeSceneManager {
 
   private clock: THREE.Clock;
   private modelManager: ModelManager;
+  private splatViewer: InstanceType<typeof GaussianSplats3D.DropInViewer> | null = null;
 
   // Debug helpers
   private axesHelper: THREE.AxesHelper | null = null;
@@ -612,6 +614,38 @@ export class ThreeSceneManager {
     }
   }
 
+  // --- Gaussian Splat Loading ---
+
+  async loadSplat(url: string): Promise<void> {
+    if (this.splatViewer) {
+      this.scene.remove(this.splatViewer);
+      this.splatViewer.dispose();
+      this.splatViewer = null;
+    }
+
+    this.splatViewer = new GaussianSplats3D.DropInViewer({
+      sharedMemoryForWorkers: false,
+    });
+
+    this.splatViewer.addSplatScene(url, {
+      position: [0, 0, 0],
+      rotation: [0, 0, 0, 0, 'XYZ'],
+      scale: [1, 1, 1],
+    });
+
+    this.scene.add(this.splatViewer);
+
+    console.log('[ThreeScene] Gaussian splat loaded:', url);
+  }
+
+  setSplatTransform(pos: { x: number; y: number; z: number }, rot: { x: number; y: number; z: number }, scale: number): void {
+    if (!this.splatViewer) return;
+    const deg = Math.PI / 180;
+    this.splatViewer.position.set(pos.x, pos.y, pos.z);
+    this.splatViewer.rotation.set(rot.x * deg, rot.y * deg, rot.z * deg);
+    this.splatViewer.scale.setScalar(scale);
+  }
+
   // --- Animation Loop ---
 
   start(): void {
@@ -681,6 +715,13 @@ export class ThreeSceneManager {
 
   dispose(): void {
     this.stop();
+
+    // Dispose splat viewer
+    if (this.splatViewer) {
+      this.scene.remove(this.splatViewer);
+      this.splatViewer.dispose();
+      this.splatViewer = null;
+    }
 
     // Dispose models
     this.modelManager.dispose();

@@ -135,6 +135,8 @@ export interface ThreeViewHandle {
   removeModel(modelId: string): void;
   setModelConfig(modelId: string, config: Partial<ModelEntry>): void;
   getPlaneScreenRect(planeId: string): { x: number; y: number; w: number; h: number } | null;
+  loadSplat(url: string): Promise<void>;
+  setSplatTransform(pos: { x: number; y: number; z: number }, rot: { x: number; y: number; z: number }, scale: number): void;
 }
 
 import type * as THREE from 'three';

@@ -7,6 +7,7 @@ import ModelManagerPanel from './components/ModelManager';
 import CalibrationWizard from './components/CalibrationWizard';
 import DebugOverlay from './components/DebugOverlay';
 import SettingsPanel from './components/SettingsPanel';
+import SplatPanel, { type SplatConfig } from './components/SplatPanel';
 import { useVideoSources } from './hooks/useVideoSources';
 import { useMonitorDetection } from './hooks/useMonitorDetection';
 import { calibrationManager } from './utils/calibration';
@@ -50,6 +51,12 @@ function App() {
   const [currentHeadPose, setCurrentHeadPose] = useState<SmoothedHeadPose | null>(null);
   const [perspectiveSettings, setPerspectiveSettings] = useState<PerspectiveSettings>(DEFAULT_PERSPECTIVE);
   const [modelEntries, setModelEntries] = useState<ModelEntry[]>([]);
+  const [splatConfig, setSplatConfig] = useState<SplatConfig>({
+    posX: 0, posY: 0.05, posZ: -0.25,
+    rotX: 0, rotY: -95, rotZ: 0,
+    scale: 0.025,
+  });
+  const [splatLoaded, setSplatLoaded] = useState(false);
   const threeViewRef = useRef<ThreeViewHandle>(null);
   const videoElManagerRef = useRef(new VideoElementManager());
   const youtubeManagerRef = useRef<YouTubeOverlayManager | null>(null);
@@ -64,6 +71,35 @@ function App() {
 
   const handleCalibrationComplete = useCallback((_cal: CalibrationData) => {
     setShowCalibration(false);
+  }, []);
+
+  // Load the Gaussian splat on mount
+  useEffect(() => {
+    if (splatLoaded) return;
+    const timer = setTimeout(() => {
+      threeViewRef.current?.loadSplat('/rainbow_cars.ply').then(() => {
+        setSplatLoaded(true);
+        threeViewRef.current?.setSplatTransform(
+          { x: splatConfig.posX, y: splatConfig.posY, z: splatConfig.posZ },
+          { x: splatConfig.rotX, y: splatConfig.rotY, z: splatConfig.rotZ },
+          splatConfig.scale,
+        );
+      }).catch((err) => console.error('[App] Failed to load splat:', err));
+    }, 500);
+    return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleSplatChange = useCallback((partial: Partial<SplatConfig>) => {
+    setSplatConfig((prev) => {
+      const next = { ...prev, ...partial };
+      threeViewRef.current?.setSplatTransform(
+        { x: next.posX, y: next.posY, z: next.posZ },
+        { x: next.rotX, y: next.rotY, z: next.rotZ },
+        next.scale,
+      );
+      return next;
+    });
   }, []);
 
   const {
@@ -356,6 +392,11 @@ function App() {
           debugParams={null}
           serverConnected={serverConnected}
         />
+
+        {/* Splat Controls */}
+        <div className="absolute top-0 left-0 z-40 w-64 bg-gray-900/95 backdrop-blur-sm border-r border-gray-700 overflow-y-auto max-h-full p-4">
+          <SplatPanel config={splatConfig} onChange={handleSplatChange} />
+        </div>
 
         {/* Settings Panel (toggle with S key) */}
         <SettingsPanel
