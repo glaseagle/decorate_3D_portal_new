@@ -70,7 +70,8 @@ export class OffAxisCamera {
 
     // Convert world position from cm to meters, apply scale and axis strength
     this.headX = (pose.worldX / 100) * movementScale * axisStrength.x;
-    this.headY = (pose.worldY / 100) * movementScale * axisStrength.y;
+    // Invert Y to match expected head-up -> camera-up behavior.
+    this.headY = (-pose.worldY / 100) * movementScale * axisStrength.y;
     this.headZ = Math.max(0.1, (pose.worldZ / 100) * axisStrength.z);
 
     this.updateProjectionMatrix();
