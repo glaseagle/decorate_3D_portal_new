@@ -33,11 +33,15 @@ jobs:
         run: npm ci
         working-directory: client
 
+      - name: Download demo splat
+        run: |
+          mkdir -p client/public
+          curl -L --retry 3 --retry-delay 2 -o client/public/rainbow_cars.ply \
+            https://github.com/glaseagle/decorate_3D_portal_new/releases/download/assets/rainbow_cars.ply
+
       - name: Build
         run: npm run build -- --mode github-pages
         working-directory: client
-        env:
-          VITE_SPLAT_URL: 'https://github.com/glaseagle/decorate_3D_portal_new/releases/download/assets/rainbow_cars.ply'
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
