@@ -13,6 +13,16 @@ Built for live visuals and creative tools like TouchDesigner and MadMapper using
 - Syphon/Spout capture for frictionless integration into existing pipelines
 - Calibration, debug overlays, and quick controls baked into the UI
 
+## Live Demo (GitHub Pages)
+
+Once Pages is enabled, the live build is at:
+
+`https://glaseagle.github.io/decorate_3D_portal_new/`
+
+Notes:
+- The demo runs the client only; Syphon/Spout streaming still requires the local Python server.
+- Webcam access requires HTTPS (GitHub Pages is HTTPS).
+
 ## How It Works
 
 1. **MediaPipe Face Landmarker** estimates head pose from the webcam.
@@ -67,6 +77,7 @@ This project uses `@mkkellogg/gaussian-splats-3d` and loads a `.ply` from the cl
 - Default load: `/rainbow_cars.ply`
 - Change the URL in `client/src/App.tsx`
 - Use the Splat panel (left side) to tweak position, rotation (degrees), and scale
+- For Pages, you can set `VITE_SPLAT_URL` during build to load a hosted `.ply` file
 
 If you do not want splats, remove the `loadSplat` call in `client/src/App.tsx` and the panel component.
 

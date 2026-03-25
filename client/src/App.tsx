@@ -57,6 +57,8 @@ function App() {
     scale: 0.025,
   });
   const [splatLoaded, setSplatLoaded] = useState(false);
+  const splatUrl = import.meta.env.VITE_SPLAT_URL
+    ?? new URL('rainbow_cars.ply', import.meta.env.BASE_URL).toString();
   const threeViewRef = useRef<ThreeViewHandle>(null);
   const videoElManagerRef = useRef(new VideoElementManager());
   const youtubeManagerRef = useRef<YouTubeOverlayManager | null>(null);
@@ -77,7 +79,7 @@ function App() {
   useEffect(() => {
     if (splatLoaded) return;
     const timer = setTimeout(() => {
-      threeViewRef.current?.loadSplat('/rainbow_cars.ply').then(() => {
+      threeViewRef.current?.loadSplat(splatUrl).then(() => {
         setSplatLoaded(true);
         threeViewRef.current?.setSplatTransform(
           { x: splatConfig.posX, y: splatConfig.posY, z: splatConfig.posZ },
