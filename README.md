@@ -1,6 +1,6 @@
 # Decorate Your Own 3D Portal
 
-Turn any screen into a head-tracked window into a layered 3D scene. Move your head and the world shifts with a clean, convincing parallax "depth box" effect.
+Turn any screen into a head-tracked window into a layered 3D world. Move your head and the scene shifts with a clean, convincing parallax "depth box" effect. Now with Gaussian splats dropped right into the portal.
 
 Built for live visuals and creative tools like TouchDesigner and MadMapper using Syphon (macOS) or Spout (Windows) frame sharing.
 
@@ -9,6 +9,7 @@ Built for live visuals and creative tools like TouchDesigner and MadMapper using
 - Real-time head tracking with MediaPipe Face Landmarker
 - Off-axis projection for correct perspective at any viewing position
 - Multi-layer video planes streamed over WebSocket as MJPEG
+- Gaussian splat viewer with live position/rotation/scale controls
 - Syphon/Spout capture for frictionless integration into existing pipelines
 - Calibration, debug overlays, and quick controls baked into the UI
 
@@ -17,19 +18,7 @@ Built for live visuals and creative tools like TouchDesigner and MadMapper using
 1. **MediaPipe Face Landmarker** estimates head pose from the webcam.
 2. An **asymmetric frustum** updates each frame based on your eye position.
 3. A **Python server** captures Syphon/Spout frames and streams them over WebSocket.
-4. The **Three.js client** maps streams onto depth layers to create the portal illusion.
-
-## Tech Stack
-
-| Layer | Technology |
-|-------|-----------|
-| 3D Rendering | Three.js r170 |
-| Head Tracking | MediaPipe Face Landmarker (tasks-vision) |
-| UI | React 18 + TypeScript + Tailwind CSS |
-| Build | Vite 6 |
-| Server | Python + FastAPI + uvicorn |
-| Frame Capture | syphon-python (macOS) / SpoutGL (Windows) |
-| Frame Encoding | OpenCV + NumPy |
+4. The **Three.js client** maps streams onto depth layers and renders a Gaussian splat scene.
 
 ## Quick Start
 
@@ -71,6 +60,16 @@ python syphon_server.py
 
 The server starts on port 8765 by default (configurable in `server/config.json`).
 
+## Gaussian Splats
+
+This project uses `@mkkellogg/gaussian-splats-3d` and loads a `.ply` from the client public path.
+
+- Default load: `/rainbow_cars.ply`
+- Change the URL in `client/src/App.tsx`
+- Use the Splat panel (left side) to tweak position, rotation (degrees), and scale
+
+If you do not want splats, remove the `loadSplat` call in `client/src/App.tsx` and the panel component.
+
 ## Server API
 
 | Endpoint | Type | Description |
@@ -88,13 +87,27 @@ Binary frame protocol: `[type:1][timestamp:8][width:4][height:4][len:4][jpeg_dat
 | `D` | Toggle debug overlay |
 | `S` | Toggle settings panel |
 
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| 3D Rendering | Three.js r170 |
+| Head Tracking | MediaPipe Face Landmarker (tasks-vision) |
+| Gaussian Splats | @mkkellogg/gaussian-splats-3d |
+| UI | React 18 + TypeScript + Tailwind CSS |
+| Build | Vite 6 |
+| Server | Python + FastAPI + uvicorn |
+| Frame Capture | syphon-python (macOS) / SpoutGL (Windows) |
+| Frame Encoding | OpenCV + NumPy |
+
 ## Project Structure
 
 ```
 client/
   src/
     components/   ThreeView, FaceMeshView, DebugOverlay, SettingsPanel,
-                  CalibrationWizard, CameraPermission, VideoSourceManager
+                  CalibrationWizard, CameraPermission, VideoSourceManager,
+                  SplatPanel
     hooks/        useFaceLandmarker, useWebSocket, useVideoSources,
                   useMonitorDetection
     utils/        headPose, offAxisCamera, threeScene, calibration,
